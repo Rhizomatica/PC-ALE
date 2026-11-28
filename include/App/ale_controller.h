@@ -754,6 +754,8 @@ private:
      */
     void apply_target_scan_channels_for(const std::string& target_addr);
     void on_received_word(const ALEWord& word);
+    /** Rebuild the state machine's scan list from the channel list (its enabled channels). */
+    void sync_scan_list();
     /**
      * Emit the incoming-call alert (on_call_received / ALE_CALL_RECEIVED) and any
      * collected AMD exactly once per handshake, once the caller's conclusion has

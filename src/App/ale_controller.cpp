@@ -382,6 +382,21 @@ void ALEController::set_calling_channels(const std::vector<Channel>& channels)
 {
     calling_channels_ = channels;
     sm_.set_calling_channels(channels);
+    sync_scan_list();
+}
+
+// The scanner hops through the state machine's scan list, which nothing else
+// fills: make it the channel list's enabled channels, keeping the dwell.
+void ALEController::sync_scan_list()
+{
+    ScanConfig cfg = sm_.get_scan_config();
+    cfg.scan_list.clear();
+    for (const auto& ch : calling_channels_)
+        if (ch.enabled)
+            cfg.scan_list.push_back(ch);
+    if (cfg.channel_index >= cfg.scan_list.size())
+        cfg.channel_index = 0;
+    sm_.configure_scan(cfg);
 }
 
 // ── Operator actions ──────────────────────────────────────────────────────────
@@ -1032,6 +1047,7 @@ bool ALEController::add_channel(const Channel& ch)
     calling_channels_.push_back(ch2);
 apply:
     sm_.set_calling_channels(calling_channels_);
+    sync_scan_list();
     if (!channel_file_.empty()) save_channels(channel_file_);
     return true;
 }
@@ -1051,6 +1067,7 @@ bool ALEController::del_channel(uint32_t rx_hz)
 
     if (!removed_id.empty()) net_store_.unassign_channel_everywhere(removed_id);
     sm_.set_calling_channels(calling_channels_);
+    sync_scan_list();
     if (!channel_file_.empty()) save_channels(channel_file_);
     return true;
 }
@@ -1081,6 +1098,7 @@ bool ALEController::load_channels(const std::string& path)
         if (ch.id.empty()) ch.id = next_free_channel_id(loaded);
     calling_channels_ = std::move(loaded);
     sm_.set_calling_channels(calling_channels_);
+    sync_scan_list();
     return true;
 }
 
@@ -1316,6 +1334,7 @@ std::string ALEController::process_command(const std::string& raw)
     if (cmd == "CMD:CLEAR_CHANNELS") {
         calling_channels_.clear();
         sm_.set_calling_channels(calling_channels_);
+        sync_scan_list();
         if (!channel_file_.empty()) save_channels(channel_file_);
         return "OK: channel list cleared";
     }
