@@ -27,10 +27,14 @@ WordEvent ALEWordDecoder::decode(const ALEWord& word,
         return ev;
     }
 
-    // TO oder TWAS an uns → Ruf an eigene Adresse erkannt.
+    // TO an uns → Ruf an eigene Adresse erkannt.
     // Per A.5.2.5.1 trägt das Scanning-TO-Word nur die ersten ≤3 Zeichen der
     // Zieladresse; self_address kann länger sein → Präfix-Vergleich nötig.
-    if ((word.type == PreambleType::TO || word.type == PreambleType::TWAS)
+    // TWAS carries the SENDER's address (A.5.2.4.4, "this was"), never ours:
+    // matching it against self_address made a peer whose address shares our
+    // first three characters (B0AA / B0AH) look like a call to us, so its
+    // termination or rejection was missed.
+    if (word.type == PreambleType::TO
         && !addr.empty()
         && ctx.self_address.size() >= addr.size()
         && ctx.self_address.compare(0, addr.size(), addr) == 0) {

@@ -16,7 +16,7 @@ namespace ale {
 struct WordEvent {
     enum class Type {
         NONE,
-        TO_SELF,          ///< TO oder TWAS, Adresse == eigene Adresse
+        TO_SELF,          ///< TO, Adresse == eigene Adresse (Präfix)
         TIS_CALLER,       ///< Erste TIS (Conclusion-Beginn vom Gegenüber)
         DATA_EXTENSION,   ///< DATA/REP nach TIS → mehrteilige Adresse
         TWAS_REJECTION,   ///< TWAS nicht an uns → Rufablehnung
