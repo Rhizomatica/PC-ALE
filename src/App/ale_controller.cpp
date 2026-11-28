@@ -678,6 +678,12 @@ void ALEController::on_operator_event(OperatorEvent ev)
     }
 }
 
+void ALEController::receive_word(const ALEWord& word)
+{
+    if (demodulator_.enabled())
+        on_received_word(word);
+}
+
 void ALEController::on_received_word(const ALEWord& word)
 {
     if (debug_rx_) {
