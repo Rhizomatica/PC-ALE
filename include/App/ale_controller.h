@@ -261,6 +261,16 @@ public:
      */
     void feed_audio(const int16_t* samples, uint32_t count);
 
+    /**
+     * Deliver a word decoded by a receiver of the host's own, as if the
+     * built-in demodulator had decoded it (same handling: LQA statistics,
+     * handshake, AMD).  For a host that runs another receiver next to the
+     * built-in one, e.g. one combining repeated words of a scanning call.
+     * Ignored while the state machine has RX disabled (during TX), as the
+     * built-in demodulator is.
+     */
+    void receive_word(const ALEWord& word);
+
     // ── Callbacks ───────────────────────────────────────────────────────────
 
     /** Three-way handshake complete.  peer_addr = remote station address. */
